@@ -1,0 +1,6 @@
+@LendFlow.Api_HostAddress = http://localhost:5147
+
+GET {{LendFlow.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

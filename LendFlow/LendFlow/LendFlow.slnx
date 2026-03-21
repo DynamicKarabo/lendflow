@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="LendFlow.Api/LendFlow.Api.csproj" />
+  <Project Path="LendFlow.Application/LendFlow.Application.csproj" />
+  <Project Path="LendFlow.Domain/LendFlow.Domain.csproj" />
+  <Project Path="LendFlow.Infrastructure/LendFlow.Infrastructure.csproj" />
+</Solution>
