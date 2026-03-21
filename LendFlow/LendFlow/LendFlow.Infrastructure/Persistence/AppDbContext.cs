@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LendFlow.Infrastructure.Persistence;
 
-public class AppDbContext : DbContext
+public class AppDbContext : DbContext, IAppDbContext
 {
     private readonly ICurrentTenantService _tenantService;
     private readonly ICurrentUserService _userService;
@@ -55,5 +55,15 @@ public class AppDbContext : DbContext
             }
         }
         return await base.SaveChangesAsync(ct);
+    }
+
+    public Task<Applicant?> GetApplicantAsync(Guid id, CancellationToken ct)
+    {
+        return Applicants.FirstOrDefaultAsync(a => a.Id == id, ct);
+    }
+
+    public void AddLoanApplication(LoanApplication application)
+    {
+        LoanApplications.Add(application);
     }
 }
