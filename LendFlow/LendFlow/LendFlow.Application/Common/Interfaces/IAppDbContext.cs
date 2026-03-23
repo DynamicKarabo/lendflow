@@ -11,8 +11,15 @@ public interface IAppDbContext
 {
     Task<Applicant?> GetApplicantAsync(Guid id, CancellationToken ct);
     Task<LoanApplication?> GetLoanApplicationAsync(Guid id, CancellationToken ct);
+    Task<Loan?> GetLoanAsync(Guid id, CancellationToken ct);
     Task<PagedResult<LoanApplication>> GetLoanApplicationsAsync(LoanApplicationStatus? status, int pageNumber, int pageSize, CancellationToken ct);
+    Task<PagedResult<Loan>> GetLoansAsync(LoanStatus? status, int pageNumber, int pageSize, CancellationToken ct);
+    Task<List<Repayment>> GetRepaymentsByLoanIdAsync(Guid loanId, CancellationToken ct);
     void AddApplicant(Applicant applicant);
     void AddLoanApplication(LoanApplication application);
+    void AddLoan(Loan loan);
+    void AddRepayment(Repayment repayment);
+    void AddCreditAssessment(CreditAssessment assessment);
+    void AddAuditLog(AuditLog auditLog);
     Task<int> SaveChangesAsync(CancellationToken ct);
 }

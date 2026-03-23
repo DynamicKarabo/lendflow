@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,6 +28,11 @@ public class AppDbContext : DbContext, IAppDbContext
 
     public DbSet<Applicant> Applicants => Set<Applicant>();
     public DbSet<LoanApplication> LoanApplications => Set<LoanApplication>();
+    public DbSet<Loan> Loans => Set<Loan>();
+    public DbSet<Repayment> Repayments => Set<Repayment>();
+    public DbSet<CreditAssessment> CreditAssessments => Set<CreditAssessment>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<Tenant> Tenants => Set<Tenant>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -38,6 +44,15 @@ public class AppDbContext : DbContext, IAppDbContext
 
         modelBuilder.Entity<LoanApplication>()
             .HasQueryFilter(l => l.TenantId == _tenantService.TenantId);
+
+        modelBuilder.Entity<Loan>()
+            .HasQueryFilter(l => l.TenantId == _tenantService.TenantId);
+
+        modelBuilder.Entity<Repayment>()
+            .HasQueryFilter(r => r.TenantId == _tenantService.TenantId);
+
+        modelBuilder.Entity<CreditAssessment>()
+            .HasQueryFilter(c => c.TenantId == _tenantService.TenantId);
 
         base.OnModelCreating(modelBuilder);
     }
@@ -98,5 +113,59 @@ public class AppDbContext : DbContext, IAppDbContext
     public void AddLoanApplication(LoanApplication application)
     {
         LoanApplications.Add(application);
+    }
+
+    public Task<Loan?> GetLoanAsync(Guid id, CancellationToken ct)
+    {
+        return Loans.FirstOrDefaultAsync(l => l.Id == id, ct);
+    }
+
+    public async Task<PagedResult<Loan>> GetLoansAsync(LoanStatus? status, int pageNumber, int pageSize, CancellationToken ct)
+    {
+        var query = Loans.AsNoTracking();
+
+        if (status.HasValue)
+        {
+            query = query.Where(l => l.Status == status.Value);
+        }
+
+        var totalCount = await query.CountAsync(ct);
+
+        var items = await query
+            .OrderByDescending(l => l.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(ct);
+
+        return new PagedResult<Loan>(items, totalCount, pageNumber, pageSize);
+    }
+
+    public async Task<List<Repayment>> GetRepaymentsByLoanIdAsync(Guid loanId, CancellationToken ct)
+    {
+        return await Repayments
+            .AsNoTracking()
+            .Where(r => r.LoanId == loanId)
+            .OrderBy(r => r.InstallmentNumber)
+            .ToListAsync(ct);
+    }
+
+    public void AddLoan(Loan loan)
+    {
+        Loans.Add(loan);
+    }
+
+    public void AddRepayment(Repayment repayment)
+    {
+        Repayments.Add(repayment);
+    }
+
+    public void AddCreditAssessment(CreditAssessment assessment)
+    {
+        CreditAssessments.Add(assessment);
+    }
+
+    public void AddAuditLog(AuditLog auditLog)
+    {
+        AuditLogs.Add(auditLog);
     }
 }
