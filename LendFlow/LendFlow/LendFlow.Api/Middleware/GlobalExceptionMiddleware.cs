@@ -44,6 +44,28 @@ public class GlobalExceptionMiddleware
                 Detail = ex.Message
             });
         }
+        catch (ArgumentException ex)
+        {
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            context.Response.ContentType = "application/problem+json";
+            await context.Response.WriteAsJsonAsync(new ProblemDetails
+            {
+                Status = 400,
+                Title = "Invalid Argument",
+                Detail = ex.Message
+            });
+        }
+        catch (InvalidOperationException ex)
+        {
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            context.Response.ContentType = "application/problem+json";
+            await context.Response.WriteAsJsonAsync(new ProblemDetails
+            {
+                Status = 400,
+                Title = "Invalid Operation",
+                Detail = ex.Message
+            });
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception for {Path}", context.Request.Path);

@@ -3,4 +3,5 @@
   <Project Path="LendFlow.Application/LendFlow.Application.csproj" />
   <Project Path="LendFlow.Domain/LendFlow.Domain.csproj" />
   <Project Path="LendFlow.Infrastructure/LendFlow.Infrastructure.csproj" />
+  <Project Path="LendFlow.Tests/LendFlow.Tests.csproj" />
 </Solution>
