@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using LendFlow.Application.Commands.SubmitApplication;
+using LendFlow.Application.Common.Interfaces;
 using LendFlow.Domain.Entities;
 using LendFlow.Domain.Enums;
 using LendFlow.Domain.Exceptions;
@@ -13,12 +14,14 @@ namespace LendFlow.Tests.Commands;
 
 public class SubmitApplicationCommandHandlerTests
 {
+    private readonly IDomainEventDispatcher _eventDispatcher = new FakeDomainEventDispatcher();
+
     [Fact]
     public async Task Handle_WhenApplicantExists_SubmitsApplication()
     {
         var idempotency = new FakeIdempotencyService();
         var dbContext = new FakeAppDbContext();
-        var handler = new SubmitApplicationCommandHandler(idempotency, dbContext);
+        var handler = new SubmitApplicationCommandHandler(idempotency, dbContext, _eventDispatcher);
 
         var tenantId = Guid.NewGuid();
         var dob = new DateOnly(1992, 5, 20);
@@ -47,7 +50,7 @@ public class SubmitApplicationCommandHandlerTests
 
         var result = await handler.Handle(command, CancellationToken.None);
 
-        Assert.Equal(1, dbContext.LoanApplications.Count);
+        Assert.Single(dbContext.LoanApplications);
         var application = dbContext.LoanApplications[0];
         Assert.Equal(result.ApplicationId, application.Id);
         Assert.Equal(LoanApplicationStatus.Submitted, application.Status);
@@ -58,7 +61,7 @@ public class SubmitApplicationCommandHandlerTests
     {
         var idempotency = new FakeIdempotencyService();
         var dbContext = new FakeAppDbContext();
-        var handler = new SubmitApplicationCommandHandler(idempotency, dbContext);
+        var handler = new SubmitApplicationCommandHandler(idempotency, dbContext, _eventDispatcher);
 
         var dob = new DateOnly(1991, 3, 10);
         var applicant = Applicant.Create(
@@ -85,5 +88,18 @@ public class SubmitApplicationCommandHandlerTests
         );
 
         await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(command, CancellationToken.None));
+    }
+}
+
+public class FakeDomainEventDispatcher : IDomainEventDispatcher
+{
+    public Task DispatchAsync(LendFlow.Domain.Events.IDomainEvent domainEvent, CancellationToken ct = default)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task DispatchManyAsync(System.Collections.Generic.IEnumerable<LendFlow.Domain.Events.IDomainEvent> domainEvents, CancellationToken ct = default)
+    {
+        return Task.CompletedTask;
     }
 }

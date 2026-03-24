@@ -17,6 +17,8 @@ public class Repayment : BaseAuditableEntity
     public RepaymentStatus Status { get; private set; }
     public string? PaymentReference { get; private set; }
 
+    public Loan? Loan { get; private set; }
+
     private Repayment() { }
 
     public static Repayment Create(
@@ -58,6 +60,11 @@ public class Repayment : BaseAuditableEntity
     public void MarkMissed()
     {
         Status = RepaymentStatus.Missed;
+    }
+
+    public void UpdateStatus(RepaymentStatus newStatus)
+    {
+        Status = newStatus;
     }
 
     public bool IsOverdue => Status == RepaymentStatus.Scheduled && DueDate < DateOnly.FromDateTime(DateTime.UtcNow);

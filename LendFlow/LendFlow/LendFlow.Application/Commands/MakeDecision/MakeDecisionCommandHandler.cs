@@ -1,5 +1,6 @@
 using LendFlow.Application.Common.Interfaces;
 using LendFlow.Domain.Entities;
+using LendFlow.Domain.Enums;
 using MediatR;
 
 namespace LendFlow.Application.Commands.MakeDecision;
@@ -7,11 +8,13 @@ namespace LendFlow.Application.Commands.MakeDecision;
 public class MakeDecisionCommandHandler : IRequestHandler<MakeDecisionCommand, MakeDecisionResult>
 {
     private readonly IAppDbContext _context;
+    private readonly IDomainEventDispatcher _eventDispatcher;
     private const decimal DefaultInterestRate = 0.28m;
 
-    public MakeDecisionCommandHandler(IAppDbContext context)
+    public MakeDecisionCommandHandler(IAppDbContext context, IDomainEventDispatcher eventDispatcher)
     {
         _context = context;
+        _eventDispatcher = eventDispatcher;
     }
 
     public async Task<MakeDecisionResult> Handle(MakeDecisionCommand request, CancellationToken ct)
@@ -20,7 +23,7 @@ public class MakeDecisionCommandHandler : IRequestHandler<MakeDecisionCommand, M
         if (application == null)
             throw new InvalidOperationException($"Application {request.ApplicationId} not found.");
 
-        if (application.Status != Domain.Enums.LoanApplicationStatus.UnderReview)
+        if (application.Status != LoanApplicationStatus.UnderReview)
             throw new InvalidOperationException("Application must be under review to make a decision.");
 
         var decision = request.Decision.ToLower();
@@ -45,6 +48,8 @@ public class MakeDecisionCommandHandler : IRequestHandler<MakeDecisionCommand, M
                 maturityDate);
             
             _context.AddLoan(loan);
+            
+            GenerateRepaymentSchedule(loan);
         }
         else
         {
@@ -53,10 +58,32 @@ public class MakeDecisionCommandHandler : IRequestHandler<MakeDecisionCommand, M
 
         await _context.SaveChangesAsync(ct);
 
+        await _eventDispatcher.DispatchManyAsync(application.DomainEvents, ct);
+        application.ClearDomainEvents();
+
         return new MakeDecisionResult(
             ApplicationId: application.Id,
             Decision: decision == "approved" ? "Approved" : "Rejected",
             LoanId: loan?.Id
         );
+    }
+
+    private void GenerateRepaymentSchedule(Loan loan)
+    {
+        var monthlyInstallment = loan.GetMonthlyInstallment();
+        var dueDate = DateOnly.FromDateTime(DateTime.UtcNow.AddMonths(1));
+
+        for (int i = 1; i <= loan.TermMonths; i++)
+        {
+            var repayment = Repayment.Create(
+                loan.TenantId,
+                loan.Id,
+                i,
+                monthlyInstallment,
+                dueDate);
+            
+            loan.AddRepayment(repayment);
+            dueDate = dueDate.AddMonths(1);
+        }
     }
 }

@@ -74,7 +74,7 @@ public class LoanApplication : BaseAuditableEntity
     public void Submit()
     {
         GetMachine().Fire(LoanApplicationTrigger.Submit);
-        _domainEvents.Add(new LoanApplicationSubmittedEvent(Id));
+        _domainEvents.Add(new LoanApplicationSubmittedEvent(Id, TenantId));
     }
 
     public void Review()
@@ -86,7 +86,7 @@ public class LoanApplication : BaseAuditableEntity
     {
         DecisionReason = reason;
         GetMachine().Fire(LoanApplicationTrigger.Approve);
-        _domainEvents.Add(new LoanApplicationApprovedEvent(Id));
+        _domainEvents.Add(new LoanApplicationApprovedEvent(Id, TenantId));
     }
 
     public void Reject(string reason)

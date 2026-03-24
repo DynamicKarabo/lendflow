@@ -19,6 +19,16 @@ public class FakeAppDbContext : IAppDbContext
     public List<CreditAssessment> CreditAssessments { get; } = new();
     public List<AuditLog> AuditLogs { get; } = new();
 
+    public IQueryable<LoanApplication> LoanApplicationsQuery => LoanApplications.AsQueryable();
+    public IQueryable<Loan> LoansQuery => Loans.AsQueryable();
+    public IQueryable<Repayment> RepaymentsQuery => Repayments.AsQueryable();
+    public IQueryable<Applicant> ApplicantsQuery => Applicants.AsQueryable();
+
+    IQueryable<LoanApplication> IAppDbContext.LoanApplications => LoanApplicationsQuery;
+    IQueryable<Loan> IAppDbContext.Loans => LoansQuery;
+    IQueryable<Repayment> IAppDbContext.Repayments => RepaymentsQuery;
+    IQueryable<Applicant> IAppDbContext.Applicants => ApplicantsQuery;
+
     public Task<Applicant?> GetApplicantAsync(Guid id, CancellationToken ct)
     {
         return Task.FromResult(Applicants.FirstOrDefault(a => a.Id == id));
@@ -67,6 +77,34 @@ public class FakeAppDbContext : IAppDbContext
     public Task<List<Repayment>> GetRepaymentsByLoanIdAsync(Guid loanId, CancellationToken ct)
     {
         return Task.FromResult(Repayments.Where(r => r.LoanId == loanId).OrderBy(r => r.InstallmentNumber).ToList());
+    }
+
+    public Task<List<Repayment>> GetUpcomingRepaymentsAsync(DateOnly reminderDate, CancellationToken ct)
+    {
+        return Task.FromResult(Repayments
+            .Where(r => r.Status == RepaymentStatus.Scheduled && r.DueDate == reminderDate)
+            .ToList());
+    }
+
+    public Task<List<Repayment>> GetLateRepaymentsAsync(DateOnly today, CancellationToken ct)
+    {
+        return Task.FromResult(Repayments
+            .Where(r => r.Status == RepaymentStatus.Scheduled && r.DueDate < today)
+            .ToList());
+    }
+
+    public Task<List<LoanApplication>> GetOldRejectedApplicationsAsync(DateTime cutoffDate, CancellationToken ct)
+    {
+        return Task.FromResult(LoanApplications
+            .Where(la => la.Status == LoanApplicationStatus.Rejected && la.UpdatedAt < cutoffDate)
+            .ToList());
+    }
+
+    public Task<List<Loan>> GetOldSettledLoansAsync(DateTime cutoffDate, CancellationToken ct)
+    {
+        return Task.FromResult(Loans
+            .Where(l => l.Status == LoanStatus.Settled && l.UpdatedAt < cutoffDate)
+            .ToList());
     }
 
     public void AddApplicant(Applicant applicant)
@@ -122,6 +160,16 @@ public class FakeAppDbContext : IAppDbContext
     public void AddAuditLog(AuditLog auditLog)
     {
         AuditLogs.Add(auditLog);
+    }
+
+    public void RemoveLoanApplication(LoanApplication application)
+    {
+        LoanApplications.Remove(application);
+    }
+
+    public void RemoveLoan(Loan loan)
+    {
+        Loans.Remove(loan);
     }
 
     public Task<int> SaveChangesAsync(CancellationToken ct)

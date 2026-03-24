@@ -38,5 +38,10 @@ public class RepaymentConfiguration : IEntityTypeConfiguration<Repayment>
 
         builder.HasIndex(r => new { r.LoanId, r.Status });
         builder.HasIndex(r => new { r.DueDate, r.Status });
+
+        builder.HasOne(r => r.Loan)
+            .WithMany(l => l.Repayments)
+            .HasForeignKey(r => r.LoanId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

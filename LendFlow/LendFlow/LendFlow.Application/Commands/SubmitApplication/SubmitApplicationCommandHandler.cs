@@ -13,11 +13,16 @@ public class SubmitApplicationCommandHandler : IRequestHandler<SubmitApplication
 {
     private readonly IIdempotencyService _idempotencyService;
     private readonly IAppDbContext _dbContext;
+    private readonly IDomainEventDispatcher _eventDispatcher;
 
-    public SubmitApplicationCommandHandler(IIdempotencyService idempotencyService, IAppDbContext dbContext)
+    public SubmitApplicationCommandHandler(
+        IIdempotencyService idempotencyService, 
+        IAppDbContext dbContext,
+        IDomainEventDispatcher eventDispatcher)
     {
         _idempotencyService = idempotencyService;
         _dbContext = dbContext;
+        _eventDispatcher = eventDispatcher;
     }
 
     public async Task<SubmitApplicationResult> Handle(SubmitApplicationCommand command, CancellationToken ct)
@@ -30,8 +35,6 @@ public class SubmitApplicationCommandHandler : IRequestHandler<SubmitApplication
 
         var applicant = await _dbContext.GetApplicantAsync(command.ApplicantId, ct);
 
-        // Domain verification ensures tenant ID matches if necessary, or the repository handles filtering. 
-        // Here we just check null and could assert TenantId if it is exposed.
         if (applicant == null || applicant.TenantId != command.TenantId)
         {
             throw new NotFoundException(nameof(Applicant), command.ApplicantId);
@@ -50,6 +53,9 @@ public class SubmitApplicationCommandHandler : IRequestHandler<SubmitApplication
 
         _dbContext.AddLoanApplication(loanApplication);
         await _dbContext.SaveChangesAsync(ct);
+
+        await _eventDispatcher.DispatchManyAsync(loanApplication.DomainEvents, ct);
+        loanApplication.ClearDomainEvents();
 
         var result = new SubmitApplicationResult(loanApplication.Id);
 

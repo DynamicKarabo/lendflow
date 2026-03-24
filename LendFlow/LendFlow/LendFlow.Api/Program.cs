@@ -1,8 +1,10 @@
 using FluentValidation;
+using Hangfire;
 using LendFlow.Api.Middleware;
 using LendFlow.Application;
 using LendFlow.Application.Commands.SubmitApplication;
 using LendFlow.Application.Common.Behaviours;
+using LendFlow.Application.Jobs;
 using LendFlow.Infrastructure;
 using LendFlow.Infrastructure.Persistence;
 using MediatR;
@@ -12,10 +14,22 @@ using Microsoft.AspNetCore.OpenApi;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using Serilog;
 using System.Text;
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .Enrich.WithProperty("Application", "LendFlow")
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -23,7 +37,32 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.PropertyNamingPolicy = null;
     });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "LendFlow API", Version = "v1" });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(SubmitApplicationCommand).Assembly));
@@ -60,10 +99,28 @@ builder.Services.AddHealthChecks()
     .AddDbContextCheck<AppDbContext>("sqlserver")
     .AddRedis(builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379", "redis");
 
+builder.Services.AddHangfire(config => config
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddHangfireServer();
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService("LendFlow"))
+    .WithTracing(tracing => tracing
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddSource("LendFlow")
+        .AddConsoleExporter());
+
 var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.UseSerilogRequestLogging();
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
@@ -72,6 +129,26 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<TenantResolutionMiddleware>();
 app.MapControllers();
+
+app.MapHangfireDashboard("/hangfire");
+
+RecurringJob.AddOrUpdate<RepaymentStatusJob>(
+    "repayment-status-check",
+    job => job.ExecuteAsync(CancellationToken.None),
+    "0 6 * * *",
+    new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+
+RecurringJob.AddOrUpdate<RepaymentReminderJob>(
+    "repayment-reminder",
+    job => job.ExecuteAsync(CancellationToken.None),
+    "0 8 * * *",
+    new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+
+RecurringJob.AddOrUpdate<RetentionCleanupJob>(
+    "retention-cleanup",
+    job => job.ExecuteAsync(CancellationToken.None),
+    "0 3 * * 0",
+    new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
 
 app.MapHealthChecks("/health", new HealthCheckOptions
 {

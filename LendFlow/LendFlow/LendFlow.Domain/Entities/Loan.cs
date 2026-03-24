@@ -21,6 +21,11 @@ public class Loan : BaseAuditableEntity
     public decimal OutstandingBalance { get; private set; }
     public LoanStatus Status { get; private set; }
 
+    private readonly List<Repayment> _repayments = new();
+    public IReadOnlyCollection<Repayment> Repayments => _repayments.AsReadOnly();
+
+    public Applicant? Applicant { get; private set; }
+
     private StateMachine<LoanStatus, LoanTrigger>? _machine;
 
     private Loan() { }
@@ -118,5 +123,10 @@ public class Loan : BaseAuditableEntity
     public void MarkWrittenOff()
     {
         GetMachine().Fire(LoanTrigger.WriteOff);
+    }
+
+    public void AddRepayment(Repayment repayment)
+    {
+        _repayments.Add(repayment);
     }
 }

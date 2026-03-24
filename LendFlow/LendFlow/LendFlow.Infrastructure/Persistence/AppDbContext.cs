@@ -34,6 +34,11 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<Tenant> Tenants => Set<Tenant>();
 
+    IQueryable<LoanApplication> IAppDbContext.LoanApplications => LoanApplications.AsNoTracking();
+    IQueryable<Loan> IAppDbContext.Loans => Loans.AsNoTracking();
+    IQueryable<Repayment> IAppDbContext.Repayments => Repayments.AsNoTracking();
+    IQueryable<Applicant> IAppDbContext.Applicants => Applicants.AsNoTracking();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
@@ -152,6 +157,10 @@ public class AppDbContext : DbContext, IAppDbContext
     public void AddLoan(Loan loan)
     {
         Loans.Add(loan);
+        foreach (var repayment in loan.Repayments)
+        {
+            Repayments.Add(repayment);
+        }
     }
 
     public void AddRepayment(Repayment repayment)
@@ -167,5 +176,45 @@ public class AppDbContext : DbContext, IAppDbContext
     public void AddAuditLog(AuditLog auditLog)
     {
         AuditLogs.Add(auditLog);
+    }
+
+    public void RemoveLoanApplication(LoanApplication application)
+    {
+        LoanApplications.Remove(application);
+    }
+
+    public void RemoveLoan(Loan loan)
+    {
+        Loans.Remove(loan);
+    }
+
+    public async Task<List<Repayment>> GetUpcomingRepaymentsAsync(DateOnly reminderDate, CancellationToken ct)
+    {
+        return await Repayments
+            .Include(r => r.Loan)
+                .ThenInclude(l => l!.Applicant)
+            .Where(r => r.Status == RepaymentStatus.Scheduled && r.DueDate == reminderDate)
+            .ToListAsync(ct);
+    }
+
+    public async Task<List<LoanApplication>> GetOldRejectedApplicationsAsync(DateTime cutoffDate, CancellationToken ct)
+    {
+        return await LoanApplications
+            .Where(la => la.Status == LoanApplicationStatus.Rejected && la.UpdatedAt < cutoffDate)
+            .ToListAsync(ct);
+    }
+
+    public async Task<List<Loan>> GetOldSettledLoansAsync(DateTime cutoffDate, CancellationToken ct)
+    {
+        return await Loans
+            .Where(l => l.Status == LoanStatus.Settled && l.UpdatedAt < cutoffDate)
+            .ToListAsync(ct);
+    }
+
+    public async Task<List<Repayment>> GetLateRepaymentsAsync(DateOnly today, CancellationToken ct)
+    {
+        return await Repayments
+            .Where(r => r.Status == RepaymentStatus.Scheduled && r.DueDate < today)
+            .ToListAsync(ct);
     }
 }

@@ -1,6 +1,7 @@
 using LendFlow.Application.Common.Interfaces;
 using LendFlow.Infrastructure.Persistence;
 using LendFlow.Infrastructure.Services;
+using LendFlow.Infrastructure.Services.Stubs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +25,14 @@ public static class DependencyInjection
         
         services.AddScoped<ICurrentTenantService, CurrentTenantService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+        services.AddSingleton<IDomainEventDispatcher, DomainEventDispatcher>();
+        services.AddSingleton<IEventPublisher, ServiceBusPublisher>();
+
+        services.AddScoped<IKycProvider, StubKycProvider>();
+        services.AddScoped<ICreditBureauProvider, StubCreditBureauProvider>();
+        services.AddScoped<IPaymentProcessor, StubPaymentProcessor>();
+        services.AddScoped<INotificationService, StubNotificationService>();
 
         return services;
     }
