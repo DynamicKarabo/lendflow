@@ -74,4 +74,31 @@ public class SouthAfricanIdNumber
     {
         return Value.GetHashCode();
     }
+
+    public DateOnly? ExtractDateOfBirth()
+    {
+        if (Value.Length < 6) return null;
+
+        var yearPart = int.Parse(Value.Substring(0, 2));
+        var monthPart = int.Parse(Value.Substring(2, 2));
+        var dayPart = int.Parse(Value.Substring(4, 2));
+
+        var currentYear = DateTime.UtcNow.Year;
+        var currentCentury = currentYear / 100 * 100;
+        var fullYear = currentCentury + yearPart;
+
+        if (fullYear > currentYear)
+        {
+            fullYear -= 100;
+        }
+
+        try
+        {
+            return new DateOnly(fullYear, monthPart, dayPart);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return null;
+        }
+    }
 }
