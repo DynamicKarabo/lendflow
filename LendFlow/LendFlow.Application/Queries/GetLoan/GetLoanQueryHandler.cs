@@ -32,7 +32,7 @@ public class GetLoanQueryHandler : IRequestHandler<GetLoanQuery, LoanDto>
     {
         var loan = await _context.GetLoanAsync(request.Id, ct);
         if (loan == null)
-            throw new InvalidOperationException($"Loan {request.Id} not found.");
+            throw new LendFlow.Domain.Exceptions.NotFoundException(nameof(Loan), request.Id);
 
         return MapToDto(loan);
     }
