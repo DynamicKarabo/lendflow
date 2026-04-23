@@ -55,13 +55,15 @@ public class DecisionEngineTests
     [Fact]
     public async Task EvaluateAsync_Under18_Rejects()
     {
-        var dob = DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-17)); 
-        var applicant = (Applicant)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(Applicant));
-        
+        var dob = DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-17));
+        var applicant = (Applicant)System.Activator.CreateInstance(typeof(Applicant), nonPublic: true)!;
+
         var propDob = typeof(Applicant).GetProperty("DateOfBirth");
+        Assert.NotNull(propDob);
         propDob.SetValue(applicant, dob);
 
         var propIncome = typeof(Applicant).GetProperty("MonthlyIncome");
+        Assert.NotNull(propIncome);
         propIncome.SetValue(applicant, 10000m);
 
         var application = CreateApplication(Guid.NewGuid(), 1000m, 12);

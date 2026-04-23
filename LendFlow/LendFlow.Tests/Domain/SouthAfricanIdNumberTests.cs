@@ -53,6 +53,7 @@ public class SouthAfricanIdNumberTests
         var saId = SouthAfricanIdNumber.Create(idString, dob);
 
         var field = typeof(SouthAfricanIdNumber).GetField("<Value>k__BackingField", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        Assert.NotNull(field);
         field.SetValue(saId, "9013405000080");
 
         var extractedDob = saId.ExtractDateOfBirth();
