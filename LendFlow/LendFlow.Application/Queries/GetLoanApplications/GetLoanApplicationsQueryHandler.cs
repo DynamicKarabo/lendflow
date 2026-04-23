@@ -20,10 +20,15 @@ public class GetLoanApplicationsQueryHandler : IRequestHandler<GetLoanApplicatio
     {
         var paged = await _dbContext.GetLoanApplicationsAsync(query.Status, query.PageNumber, query.PageSize, ct);
 
+        var applicantIds = paged.Items.Select(a => a.ApplicantId).Distinct().ToList();
+        var applicants = await Task.WhenAll(applicantIds.Select(id => _dbContext.GetApplicantAsync(id, ct)));
+        var applicantMap = applicants.Where(a => a != null).ToDictionary(a => a!.Id, a => $"{a!.FirstName} {a.LastName}");
+
         var items = paged.Items
             .Select(a => new LoanApplicationListItemDto(
                 a.Id,
                 a.ApplicantId,
+                applicantMap.GetValueOrDefault(a.ApplicantId, "Unknown"),
                 a.RequestedAmount,
                 a.RequestedTermMonths,
                 a.Purpose,

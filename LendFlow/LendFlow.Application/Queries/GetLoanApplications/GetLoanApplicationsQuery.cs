@@ -8,6 +8,7 @@ namespace LendFlow.Application.Queries.GetLoanApplications;
 public record LoanApplicationListItemDto(
     Guid Id,
     Guid ApplicantId,
+    string ApplicantName,
     decimal RequestedAmount,
     int RequestedTermMonths,
     string Purpose,

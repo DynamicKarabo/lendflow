@@ -7,6 +7,7 @@ namespace LendFlow.Application.Queries.GetLoans;
 public record LoanListItemDto(
     Guid Id,
     Guid ApplicationId,
+    string ApplicantName,
     decimal PrincipalAmount,
     decimal InterestRate,
     int TermMonths,
@@ -35,17 +36,22 @@ public class GetLoansQueryHandler : IRequestHandler<GetLoansQuery, GetLoansResul
     {
         var result = await _context.GetLoansAsync(request.Status, request.PageNumber, request.PageSize, ct);
 
+        var applicantIds = result.Items.Select(l => l.ApplicantId).Distinct().ToList();
+        var applicants = await Task.WhenAll(applicantIds.Select(id => _context.GetApplicantAsync(id, ct)));
+        var applicantMap = applicants.Where(a => a != null).ToDictionary(a => a!.Id, a => $"{a!.FirstName} {a.LastName}");
+
         return new GetLoansResult(
-            Items: result.Items.Select(MapToDto).ToList(),
+            Items: result.Items.Select(l => MapToDto(l, applicantMap.GetValueOrDefault(l.ApplicantId, "Unknown"))).ToList(),
             TotalCount: result.TotalCount,
             PageNumber: result.PageNumber,
             PageSize: result.PageSize
         );
     }
 
-    private static LoanListItemDto MapToDto(Loan loan) => new(
+    private static LoanListItemDto MapToDto(Loan loan, string applicantName) => new(
         Id: loan.Id,
         ApplicationId: loan.ApplicationId,
+        ApplicantName: applicantName,
         PrincipalAmount: loan.PrincipalAmount,
         InterestRate: loan.InterestRate,
         TermMonths: loan.TermMonths,

@@ -9,6 +9,7 @@ public record LoanDto(
     Guid TenantId,
     Guid ApplicationId,
     Guid ApplicantId,
+    string ApplicantName,
     decimal PrincipalAmount,
     decimal InterestRate,
     int TermMonths,
@@ -16,6 +17,7 @@ public record LoanDto(
     DateTimeOffset? DisbursementDate,
     DateOnly MaturityDate,
     decimal OutstandingBalance,
+    decimal MonthlyInstallment,
     string Status,
     DateTimeOffset CreatedAt);
 
@@ -34,14 +36,18 @@ public class GetLoanQueryHandler : IRequestHandler<GetLoanQuery, LoanDto>
         if (loan == null)
             throw new LendFlow.Domain.Exceptions.NotFoundException(nameof(Loan), request.Id);
 
-        return MapToDto(loan);
+        var applicant = await _context.GetApplicantAsync(loan.ApplicantId, ct);
+        var applicantName = applicant != null ? $"{applicant.FirstName} {applicant.LastName}" : "Unknown";
+
+        return MapToDto(loan, applicantName);
     }
 
-    private static LoanDto MapToDto(Loan loan) => new(
+    private static LoanDto MapToDto(Loan loan, string applicantName) => new(
         Id: loan.Id,
         TenantId: loan.TenantId,
         ApplicationId: loan.ApplicationId,
         ApplicantId: loan.ApplicantId,
+        ApplicantName: applicantName,
         PrincipalAmount: loan.PrincipalAmount,
         InterestRate: loan.InterestRate,
         TermMonths: loan.TermMonths,
@@ -49,6 +55,7 @@ public class GetLoanQueryHandler : IRequestHandler<GetLoanQuery, LoanDto>
         DisbursementDate: loan.DisbursementDate,
         MaturityDate: loan.MaturityDate,
         OutstandingBalance: loan.OutstandingBalance,
+        MonthlyInstallment: loan.GetMonthlyInstallment(),
         Status: loan.Status.ToString(),
         CreatedAt: loan.CreatedAt
     );
