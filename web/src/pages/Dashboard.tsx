@@ -40,9 +40,9 @@ export default function Dashboard() {
   const { data: applications } = useApplications()
 
   const statusData = [
-    { name: "Active", value: loans.filter((l) => l.status === "Active").length },
-    { name: "Pending", value: loans.filter((l) => l.status === "PendingDisbursement").length },
-    { name: "Settled", value: loans.filter((l) => l.status === "Settled").length },
+    { name: "Active", value: loans.filter((l) => l.Status === "Active").length },
+    { name: "Pending", value: loans.filter((l) => l.Status === "PendingDisbursement").length },
+    { name: "Settled", value: loans.filter((l) => l.Status === "Settled").length },
   ].filter((d) => d.value > 0)
 
   const monthlyData = [
@@ -77,7 +77,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {statsLoading ? "—" : formatZAR(stats?.totalDisbursed || 0)}
+              {statsLoading ? "—" : formatZAR(stats?.TotalDisbursed || 0)}
             </div>
             <div className="flex items-center gap-1 mt-1 text-xs text-emerald-400">
               <TrendingUp className="h-3 w-3" />
@@ -97,7 +97,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {statsLoading ? "—" : formatZAR(stats?.totalOutstanding || 0)}
+              {statsLoading ? "—" : formatZAR(stats?.TotalOutstanding || 0)}
             </div>
             <div className="flex items-center gap-1 mt-1 text-xs text-sky-400">
               <TrendingDown className="h-3 w-3" />
@@ -117,7 +117,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {statsLoading ? "—" : stats?.totalLoans}
+              {statsLoading ? "—" : stats?.TotalLoans}
             </div>
             <div className="mt-2">
               <Progress value={65} max={100} variant="success" className="h-1.5" />
@@ -136,7 +136,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {statsLoading ? "—" : stats?.activeApplications}
+              {statsLoading ? "—" : stats?.ActiveApplications}
             </div>
             <div className="mt-1 text-xs text-muted-foreground">
               3 awaiting review
@@ -155,10 +155,10 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {statsLoading ? "—" : `${stats?.approvalRate}%`}
+              {statsLoading ? "—" : `${stats?.ApprovalRate}%`}
             </div>
             <div className="mt-2">
-              <Progress value={stats?.approvalRate || 0} max={100} variant="success" className="h-1.5" />
+              <Progress value={stats?.ApprovalRate || 0} max={100} variant="success" className="h-1.5" />
             </div>
           </CardContent>
         </Card>
@@ -174,7 +174,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {statsLoading ? "—" : formatZAR(stats?.avgLoanAmount || 0)}
+              {statsLoading ? "—" : formatZAR(stats?.AvgLoanAmount || 0)}
             </div>
             <div className="mt-1 text-xs text-muted-foreground">
               Across all products
@@ -264,35 +264,35 @@ export default function Dashboard() {
           <div className="space-y-3">
             {applications.slice(0, 4).map((app) => (
               <div
-                key={app.id}
+                key={app.Id}
                 className="flex items-center justify-between rounded-lg border border-border/50 p-4 transition-colors hover:bg-muted/30"
               >
                 <div className="flex items-center gap-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-sm">
-                    {app.applicantName?.charAt(0)}
+                    {app.ApplicantName?.charAt(0)}
                   </div>
                   <div>
-                    <p className="text-sm font-medium">{app.applicantName}</p>
-                    <p className="text-xs text-muted-foreground">{app.purpose}</p>
+                    <p className="text-sm font-medium">{app.ApplicantName}</p>
+                    <p className="text-xs text-muted-foreground">{app.Purpose}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-right">
-                    <p className="text-sm font-medium">{formatZAR(app.requestedAmount)}</p>
-                    <p className="text-xs text-muted-foreground">{app.requestedTermMonths} months</p>
+                    <p className="text-sm font-medium">{formatZAR(app.RequestedAmount)}</p>
+                    <p className="text-xs text-muted-foreground">{app.RequestedTermMonths} months</p>
                   </div>
                   <Badge
                     variant={
-                      app.status === "Approved"
+                      app.Status === "Approved"
                         ? "success"
-                        : app.status === "Rejected"
+                        : app.Status === "Rejected"
                         ? "destructive"
-                        : app.status === "UnderReview"
+                        : app.Status === "UnderReview"
                         ? "warning"
                         : "secondary"
                     }
                   >
-                    {app.status}
+                    {app.Status}
                   </Badge>
                 </div>
               </div>

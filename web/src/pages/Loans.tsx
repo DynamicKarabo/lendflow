@@ -42,7 +42,7 @@ export default function Loans() {
 
   const filtered = loans.filter(
     (l) =>
-      l.applicantName?.toLowerCase().includes(search.toLowerCase())
+      l.ApplicantName?.toLowerCase().includes(search.toLowerCase())
   )
 
   return (
@@ -113,30 +113,30 @@ export default function Loans() {
                 </TableRow>
               ) : (
                 filtered.map((loan) => (
-                  <TableRow key={loan.id}>
+                  <TableRow key={loan.Id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-semibold">
-                          {loan.applicantName?.charAt(0)}
+                          {loan.ApplicantName?.charAt(0)}
                         </div>
                         <div>
-                          <p className="text-sm font-medium">{loan.applicantName}</p>
-                          <p className="text-xs text-muted-foreground">{loan.id.slice(0, 8)}</p>
+                          <p className="text-sm font-medium">{loan.ApplicantName}</p>
+                          <p className="text-xs text-muted-foreground">{loan.Id.slice(0, 8)}</p>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="font-medium">{formatZAR(loan.principal)}</TableCell>
-                    <TableCell>{(loan.interestRate * 100).toFixed(1)}%</TableCell>
-                    <TableCell>{loan.termMonths} mo</TableCell>
-                    <TableCell className={loan.outstandingBalance === 0 ? "text-muted-foreground" : "font-medium"}>
-                      {formatZAR(loan.outstandingBalance)}
+                    <TableCell className="font-medium">{formatZAR(loan.PrincipalAmount)}</TableCell>
+                    <TableCell>{(loan.InterestRate * 100).toFixed(1)}%</TableCell>
+                    <TableCell>{loan.TermMonths} mo</TableCell>
+                    <TableCell className={loan.OutstandingBalance === 0 ? "text-muted-foreground" : "font-medium"}>
+                      {formatZAR(loan.OutstandingBalance)}
                     </TableCell>
                     <TableCell>
-                      <StatusBadge status={loan.status} />
+                      <StatusBadge status={loan.Status} />
                     </TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm">
-                        <Link to={`/loans/${loan.id}`} className="flex items-center">
+                        <Link to={`/loans/${loan.Id}`} className="flex items-center">
                           <Eye className="h-4 w-4 mr-1" />
                           View
                         </Link>

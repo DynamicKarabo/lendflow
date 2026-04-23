@@ -67,11 +67,11 @@ export default function LoanDetail() {
     )
   }
 
-  const progressPercent = loan.principal > 0
-    ? ((loan.principal - loan.outstandingBalance) / loan.principal) * 100
+  const progressPercent = loan.PrincipalAmount > 0
+    ? ((loan.PrincipalAmount - loan.OutstandingBalance) / loan.PrincipalAmount) * 100
     : 0
 
-  const paidRepayments = repayments.filter((r) => r.status === "Paid").length
+  const paidRepayments = repayments.filter((r) => r.Status === "Paid").length
   const totalRepayments = repayments.length
 
   return (
@@ -80,7 +80,7 @@ export default function LoanDetail() {
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Link to="/loans" className="hover:text-foreground transition-colors">Loans</Link>
         <span>/</span>
-        <span className="text-foreground font-medium">{loan.id.slice(0, 8)}</span>
+        <span className="text-foreground font-medium">{loan.Id.slice(0, 8)}</span>
       </div>
 
       {/* Header */}
@@ -88,8 +88,8 @@ export default function LoanDetail() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Loan Details</h1>
           <div className="flex items-center gap-3 mt-2">
-            <StatusBadge status={loan.status} />
-            <span className="text-sm text-muted-foreground">ID: {loan.id}</span>
+            <StatusBadge status={loan.Status} />
+            <span className="text-sm text-muted-foreground">ID: {loan.Id}</span>
           </div>
         </div>
         <Button variant="outline" size="sm">
@@ -105,12 +105,12 @@ export default function LoanDetail() {
         <Card className="border-border/50">
           <CardHeader className="pb-3">
             <CardDescription>Principal Amount</CardDescription>
-            <CardTitle className="text-3xl">{formatZAR(loan.principal)}</CardTitle>
+            <CardTitle className="text-3xl">{formatZAR(loan.PrincipalAmount)}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Banknote className="h-4 w-4" />
-              <span>Rate: {(loan.interestRate * 100).toFixed(1)}% | Term: {loan.termMonths} months</span>
+              <span>Rate: {(loan.InterestRate * 100).toFixed(1)}% | Term: {loan.TermMonths} months</span>
             </div>
           </CardContent>
         </Card>
@@ -118,7 +118,7 @@ export default function LoanDetail() {
         <Card className="border-border/50">
           <CardHeader className="pb-3">
             <CardDescription>Outstanding Balance</CardDescription>
-            <CardTitle className="text-3xl">{formatZAR(loan.outstandingBalance)}</CardTitle>
+            <CardTitle className="text-3xl">{formatZAR(loan.OutstandingBalance)}</CardTitle>
           </CardHeader>
           <CardContent>
             <Progress value={progressPercent} max={100} variant="success" className="h-2" />
@@ -131,12 +131,12 @@ export default function LoanDetail() {
         <Card className="border-border/50">
           <CardHeader className="pb-3">
             <CardDescription>Monthly Installment</CardDescription>
-            <CardTitle className="text-3xl">{formatZAR(loan.monthlyInstallment)}</CardTitle>
+            <CardTitle className="text-3xl">{formatZAR(loan.MonthlyInstallment)}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Calendar className="h-4 w-4" />
-              <span>Disbursed: {loan.disbursementDate || "Pending"}</span>
+              <span>Disbursed: {loan.DisbursementDate || "Pending"}</span>
             </div>
           </CardContent>
         </Card>
@@ -153,8 +153,8 @@ export default function LoanDetail() {
               <User className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-lg font-semibold">{loan.applicantName}</p>
-              <p className="text-sm text-muted-foreground">Applicant ID: {loan.applicantId}</p>
+              <p className="text-lg font-semibold">{loan.ApplicantName}</p>
+              <p className="text-sm text-muted-foreground">Applicant ID: {loan.ApplicantId}</p>
             </div>
           </div>
         </CardContent>
@@ -198,30 +198,30 @@ export default function LoanDetail() {
             <div className="space-y-2">
               {repayments.map((repayment) => (
                 <div
-                  key={repayment.id}
+                  key={repayment.Id}
                   className="flex items-center justify-between rounded-lg border border-border/50 p-4 transition-colors hover:bg-muted/20"
                 >
                   <div className="flex items-center gap-4">
-                    {repayment.status === "Paid" ? (
+                    {repayment.Status === "Paid" ? (
                       <CheckCircle2 className="h-5 w-5 text-emerald-500" />
                     ) : (
                       <Circle className="h-5 w-5 text-muted-foreground" />
                     )}
                     <div>
                       <p className="text-sm font-medium">
-                        Installment {repayment.installmentNumber}
+                        Installment {repayment.InstallmentNumber}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Due: {repayment.dueDate}
-                        {repayment.paidDate && ` • Paid: ${repayment.paidDate}`}
+                        Due: {repayment.DueDate}
+                        {repayment.PaidDate && ` • Paid: ${repayment.PaidDate}`}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-medium">{formatZAR(repayment.amountDue)}</p>
-                    {repayment.status === "Paid" && (
+                    <p className="text-sm font-medium">{formatZAR(repayment.AmountDue)}</p>
+                    {repayment.Status === "Paid" && repayment.AmountPaid != null && (
                       <p className="text-xs text-emerald-400">
-                        Paid {formatZAR(repayment.amountPaid)}
+                        Paid {formatZAR(repayment.AmountPaid)}
                       </p>
                     )}
                   </div>

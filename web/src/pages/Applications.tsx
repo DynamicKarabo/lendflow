@@ -55,8 +55,8 @@ export default function Applications() {
 
   const filtered = applications.filter(
     (a) =>
-      a.applicantName?.toLowerCase().includes(search.toLowerCase()) ||
-      a.purpose?.toLowerCase().includes(search.toLowerCase())
+      a.ApplicantName?.toLowerCase().includes(search.toLowerCase()) ||
+      a.Purpose?.toLowerCase().includes(search.toLowerCase())
   )
 
   return (
@@ -127,26 +127,26 @@ export default function Applications() {
                 </TableRow>
               ) : (
                 filtered.map((app) => (
-                  <TableRow key={app.id}>
+                  <TableRow key={app.Id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-semibold">
-                          {app.applicantName?.charAt(0)}
+                          {app.ApplicantName?.charAt(0)}
                         </div>
                         <div>
-                          <p className="text-sm font-medium">{app.applicantName}</p>
-                          <p className="text-xs text-muted-foreground">{app.id.slice(0, 8)}</p>
+                          <p className="text-sm font-medium">{app.ApplicantName}</p>
+                          <p className="text-xs text-muted-foreground">{app.Id.slice(0, 8)}</p>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="font-medium">{formatZAR(app.requestedAmount)}</TableCell>
-                    <TableCell>{app.requestedTermMonths} mo</TableCell>
-                    <TableCell className="text-muted-foreground">{app.purpose}</TableCell>
+                    <TableCell className="font-medium">{formatZAR(app.RequestedAmount)}</TableCell>
+                    <TableCell>{app.RequestedTermMonths} mo</TableCell>
+                    <TableCell className="text-muted-foreground">{app.Purpose}</TableCell>
                     <TableCell>
-                      <CreditScoreIndicator score={app.creditScore} />
+                      <CreditScoreIndicator score={app.CreditScore} />
                     </TableCell>
                     <TableCell>
-                      <StatusBadge status={app.status} />
+                      <StatusBadge status={app.Status} />
                     </TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm">

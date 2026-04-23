@@ -1,15 +1,17 @@
 export interface Applicant {
-  id: string;
-  tenantId: string;
-  firstName: string;
-  lastName: string;
-  idNumber: string;
-  phoneNumber: string;
-  email: string;
-  dateOfBirth: string;
-  employmentStatus: string;
-  monthlyIncome: number;
-  monthlyExpenses: number;
+  Id: string;
+  TenantId: string;
+  FirstName: string;
+  LastName: string;
+  IdNumber: string;
+  PhoneNumber: string;
+  Email: string;
+  DateOfBirth: string;
+  EmploymentStatus: string;
+  MonthlyIncome: number;
+  MonthlyExpenses: number;
+  CreatedAt: string;
+  UpdatedAt?: string;
 }
 
 export type LoanApplicationStatus =
@@ -21,16 +23,17 @@ export type LoanApplicationStatus =
   | "Cancelled";
 
 export interface LoanApplication {
-  id: string;
-  applicantId: string;
-  applicantName?: string;
-  status: LoanApplicationStatus;
-  requestedAmount: number;
-  requestedTermMonths: number;
-  purpose: string;
-  creditScore?: number;
-  riskBand?: string;
-  submittedAt?: string;
+  Id: string;
+  ApplicantId: string;
+  ApplicantName: string;
+  Status: LoanApplicationStatus;
+  RequestedAmount: number;
+  RequestedTermMonths: number;
+  Purpose: string;
+  CreditScore?: number;
+  RiskBand?: string;
+  CreatedAt: string;
+  UpdatedAt?: string;
 }
 
 export type LoanStatus =
@@ -40,47 +43,50 @@ export type LoanStatus =
   | "Defaulted";
 
 export interface Loan {
-  id: string;
-  applicationId: string;
-  applicantId: string;
-  applicantName?: string;
-  principal: number;
-  interestRate: number;
-  termMonths: number;
-  status: LoanStatus;
-  outstandingBalance: number;
-  monthlyInstallment: number;
-  disbursementDate?: string;
-  createdAt: string;
+  Id: string;
+  ApplicationId: string;
+  ApplicantId: string;
+  ApplicantName: string;
+  PrincipalAmount: number;
+  InterestRate: number;
+  TermMonths: number;
+  RepaymentFrequency: string;
+  Status: LoanStatus;
+  OutstandingBalance: number;
+  MonthlyInstallment: number;
+  DisbursementDate?: string;
+  MaturityDate: string;
+  CreatedAt: string;
 }
 
 export type RepaymentStatus = "Scheduled" | "Paid" | "Overdue";
 
 export interface Repayment {
-  id: string;
-  loanId: string;
-  installmentNumber: number;
-  amountDue: number;
-  amountPaid: number;
-  status: RepaymentStatus;
-  dueDate: string;
-  paidDate?: string;
-  paymentReference?: string;
+  Id: string;
+  InstallmentNumber: number;
+  AmountDue: number;
+  AmountPaid?: number;
+  Status: RepaymentStatus;
+  DueDate: string;
+  PaidDate?: string;
+  PaymentReference?: string;
+  CreatedAt: string;
 }
 
 export interface PagedResult<T> {
-  items: T[];
-  totalCount: number;
-  pageNumber: number;
-  pageSize: number;
-  totalPages: number;
+  Items: T[];
+  TotalCount: number;
+  PageNumber: number;
+  PageSize: number;
 }
 
-export interface DashboardStats {
-  totalLoans: number;
-  totalOutstanding: number;
-  totalDisbursed: number;
-  activeApplications: number;
-  approvalRate: number;
-  avgLoanAmount: number;
+export interface LoginRequest {
+  Email: string;
+  Password: string;
+}
+
+export interface LoginResponse {
+  Token: string;
+  Email: string;
+  Role: string;
 }

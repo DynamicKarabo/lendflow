@@ -10,8 +10,10 @@ import {
   Menu,
   ChevronLeft,
   ChevronRight,
+  LogOut,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/hooks/useAuth"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
@@ -27,6 +29,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = React.useState(false)
   const [mobileOpen, setMobileOpen] = React.useState(false)
   const location = useLocation()
+  const { email, logout } = useAuth()
 
   return (
     <div className="flex h-screen w-full bg-background">
@@ -88,6 +91,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {/* Bottom */}
         <div className="p-3">
           <button
+            onClick={logout}
+            className={cn(
+              "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-destructive transition-all hover:bg-destructive/10",
+              collapsed && "justify-center"
+            )}
+          >
+            <LogOut className="h-4 w-4" />
+            {!collapsed && <span>Logout</span>}
+          </button>
+        </div>
+        <div className="p-3">
+          <button
             onClick={() => setCollapsed(!collapsed)}
             className={cn(
               "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground",
@@ -140,8 +155,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <AvatarFallback className="bg-primary/10 text-primary text-xs">AD</AvatarFallback>
               </Avatar>
               <div className="hidden md:block">
-                <p className="text-sm font-medium">Admin User</p>
-                <p className="text-xs text-muted-foreground">Underwriter</p>
+                <p className="text-sm font-medium">{email || "User"}</p>
+                <p className="text-xs text-muted-foreground">Logged in</p>
               </div>
             </div>
           </div>

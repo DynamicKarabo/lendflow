@@ -33,9 +33,9 @@ export default function Applicants() {
 
   const filtered = applicants.filter(
     (a) =>
-      a.firstName.toLowerCase().includes(search.toLowerCase()) ||
-      a.lastName.toLowerCase().includes(search.toLowerCase()) ||
-      a.email.toLowerCase().includes(search.toLowerCase())
+      a.FirstName.toLowerCase().includes(search.toLowerCase()) ||
+      a.LastName.toLowerCase().includes(search.toLowerCase()) ||
+      a.Email.toLowerCase().includes(search.toLowerCase())
   )
 
   return (
@@ -96,27 +96,27 @@ export default function Applicants() {
                 </TableRow>
               ) : (
                 filtered.map((applicant) => {
-                  const dti = ((applicant.monthlyExpenses / applicant.monthlyIncome) * 100).toFixed(1)
+                  const dti = ((applicant.MonthlyExpenses / applicant.MonthlyIncome) * 100).toFixed(1)
                   return (
-                    <TableRow key={applicant.id}>
+                    <TableRow key={applicant.Id}>
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-semibold">
-                            {applicant.firstName.charAt(0)}{applicant.lastName.charAt(0)}
+                            {applicant.FirstName.charAt(0)}{applicant.LastName.charAt(0)}
                           </div>
                           <div>
-                            <p className="text-sm font-medium">{applicant.firstName} {applicant.lastName}</p>
-                            <p className="text-xs text-muted-foreground">{applicant.email}</p>
+                            <p className="text-sm font-medium">{applicant.FirstName} {applicant.LastName}</p>
+                            <p className="text-xs text-muted-foreground">{applicant.Email}</p>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="font-mono text-xs">{applicant.idNumber}</TableCell>
-                      <TableCell className="text-sm">{applicant.phoneNumber}</TableCell>
+                      <TableCell className="font-mono text-xs">{applicant.IdNumber}</TableCell>
+                      <TableCell className="text-sm">{applicant.PhoneNumber}</TableCell>
                       <TableCell>
-                        <EmploymentBadge status={applicant.employmentStatus} />
+                        <EmploymentBadge status={applicant.EmploymentStatus} />
                       </TableCell>
-                      <TableCell className="font-medium">{formatZAR(applicant.monthlyIncome)}</TableCell>
-                      <TableCell className="text-muted-foreground">{formatZAR(applicant.monthlyExpenses)}</TableCell>
+                      <TableCell className="font-medium">{formatZAR(applicant.MonthlyIncome)}</TableCell>
+                      <TableCell className="text-muted-foreground">{formatZAR(applicant.MonthlyExpenses)}</TableCell>
                       <TableCell>
                         <span className={Number(dti) > 40 ? "text-rose-400 font-medium" : "text-emerald-400 font-medium"}>
                           {dti}%
