@@ -53,7 +53,7 @@ public class GetLoansQueryHandlerTests
         var applicantId = Guid.NewGuid();
 
         var pendingLoan = Loan.Create(tenantId, Guid.NewGuid(), applicantId, 5000m, 0.1m, 12, new DateOnly(2025, 1, 1));
-        
+
         var activeLoan = Loan.Create(tenantId, Guid.NewGuid(), applicantId, 10000m, 0.15m, 24, new DateOnly(2026, 1, 1));
         activeLoan.Disburse();
 
