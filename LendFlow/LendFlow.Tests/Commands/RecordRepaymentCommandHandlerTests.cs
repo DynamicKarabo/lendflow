@@ -41,7 +41,7 @@ public class RecordRepaymentCommandHandlerTests
 
         var command = new RecordRepaymentCommand(Guid.NewGuid(), Guid.NewGuid(), 100m, "REF123", "key2");
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(command, CancellationToken.None));
-        
+
         Assert.Contains("not found", ex.Message);
     }
 
@@ -59,7 +59,7 @@ public class RecordRepaymentCommandHandlerTests
 
         var command = new RecordRepaymentCommand(tenantId, loan.Id, 100m, "REF123", "key3");
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(command, CancellationToken.None));
-        
+
         Assert.Contains("must be Active", ex.Message);
     }
 
@@ -80,7 +80,7 @@ public class RecordRepaymentCommandHandlerTests
 
         var command = new RecordRepaymentCommand(tenantId, loan.Id, 50m, "REF123", "key4");
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(command, CancellationToken.None));
-        
+
         Assert.Contains("Payment must be at least", ex.Message);
     }
 
@@ -109,14 +109,14 @@ public class RecordRepaymentCommandHandlerTests
         Assert.Equal(RepaymentStatus.Paid, repayment1.Status);
         Assert.Equal(100m, repayment1.AmountPaid);
         Assert.Equal("REF123", repayment1.PaymentReference);
-        
+
         Assert.Equal(initialBalance - 100m, loan.OutstandingBalance);
-        
+
         Assert.Single(dbContext.AuditLogs);
         var log = dbContext.AuditLogs.Single();
         Assert.Equal(repayment1.Id, log.EntityId);
         Assert.Equal("Paid", log.Action);
-        
+
         Assert.Equal(0, result.RepaymentsRemaining);
     }
 
@@ -140,7 +140,7 @@ public class RecordRepaymentCommandHandlerTests
 
         Assert.Equal(0m, loan.OutstandingBalance);
         Assert.Equal(LoanStatus.Settled, loan.Status);
-        
+
         Assert.Equal("Settled", result.LoanStatus);
         Assert.Equal(0, result.RepaymentsRemaining);
     }

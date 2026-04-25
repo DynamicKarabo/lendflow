@@ -23,7 +23,7 @@ public class MakeDecisionCommandHandlerTests
 
         var command = new MakeDecisionCommand(Guid.NewGuid(), Guid.NewGuid(), "Approved", "Looks good");
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(command, CancellationToken.None));
-        
+
         Assert.Contains("not found", ex.Message);
     }
 
@@ -40,7 +40,7 @@ public class MakeDecisionCommandHandlerTests
 
         var command = new MakeDecisionCommand(tenantId, application.Id, "Approved", "Looks good");
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(command, CancellationToken.None));
-        
+
         Assert.Contains("under review", ex.Message);
     }
 
@@ -58,7 +58,7 @@ public class MakeDecisionCommandHandlerTests
 
         var command = new MakeDecisionCommand(tenantId, application.Id, "Maybe", "Not sure");
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(command, CancellationToken.None));
-        
+
         Assert.Contains("must be 'approved' or 'rejected'", ex.Message);
     }
 
@@ -80,13 +80,13 @@ public class MakeDecisionCommandHandlerTests
         Assert.Equal("Approved", result.Decision);
         Assert.Equal(LoanApplicationStatus.Approved, application.Status);
         Assert.Equal("Looks great", application.DecisionReason);
-        
+
         Assert.Single(dbContext.Loans);
         var loan = dbContext.Loans.Single();
         Assert.Equal(application.Id, loan.ApplicationId);
-        
+
         Assert.Equal(loan.Id, result.LoanId);
-        
+
         // Ensure repayment schedule was generated on the loan, which is part of MakeDecision in this app
         Assert.Equal(12, loan.Repayments.Count);
     }
@@ -109,7 +109,7 @@ public class MakeDecisionCommandHandlerTests
         Assert.Equal("Rejected", result.Decision);
         Assert.Equal(LoanApplicationStatus.Rejected, application.Status);
         Assert.Equal("Too risky", application.DecisionReason);
-        
+
         Assert.Empty(dbContext.Loans);
         Assert.Null(result.LoanId);
     }

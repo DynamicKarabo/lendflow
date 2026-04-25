@@ -49,7 +49,7 @@ public class AssessCreditCommandHandlerTests
         var dbContext = new FakeAppDbContext();
         var handler = new AssessCreditCommandHandler(dbContext, _assessmentService, _decisionEngine);
         var tenantId = Guid.NewGuid();
-        
+
         var application = LoanApplication.Create(tenantId, Guid.NewGuid(), 1000m, 12, "Test", "key1");
         dbContext.AddLoanApplication(application);
 
@@ -66,7 +66,7 @@ public class AssessCreditCommandHandlerTests
         var handler = new AssessCreditCommandHandler(dbContext, _assessmentService, _decisionEngine);
         var tenantId = Guid.NewGuid();
         var dob = new DateOnly(1990, 1, 15);
-        
+
         var applicant = Applicant.Create(tenantId, "Test", "User", TestData.CreateValidSaId(dob), "0123456789", "test@test.com", dob, "Employed", 50000m, 1000m);
         dbContext.AddApplicant(applicant);
 
@@ -81,11 +81,11 @@ public class AssessCreditCommandHandlerTests
 
         Assert.Equal("Approved", result.Decision);
         Assert.Equal(LoanApplicationStatus.Approved, application.Status);
-        
+
         Assert.Single(dbContext.Loans);
         var loan = dbContext.Loans.Single();
         Assert.Equal(application.Id, loan.ApplicationId);
-        
+
         Assert.Single(dbContext.CreditAssessments);
     }
 
@@ -96,7 +96,7 @@ public class AssessCreditCommandHandlerTests
         var handler = new AssessCreditCommandHandler(dbContext, _assessmentService, _decisionEngine);
         var tenantId = Guid.NewGuid();
         var dob = new DateOnly(1990, 1, 15);
-        
+
         var applicant = Applicant.Create(tenantId, "Test", "User", TestData.CreateValidSaId(dob), "0123456789", "test@test.com", dob, "SelfEmployed", 15000m, 4000m);
         dbContext.AddApplicant(applicant);
 
@@ -111,7 +111,7 @@ public class AssessCreditCommandHandlerTests
         Assert.Equal("UnderReview", result.Decision);
         Assert.Equal(LoanApplicationStatus.UnderReview, application.Status);
         Assert.Empty(dbContext.Loans);
-        
+
         Assert.Single(dbContext.CreditAssessments);
     }
 
@@ -122,7 +122,7 @@ public class AssessCreditCommandHandlerTests
         var handler = new AssessCreditCommandHandler(dbContext, _assessmentService, _decisionEngine);
         var tenantId = Guid.NewGuid();
         var dob = new DateOnly(1990, 1, 15);
-        
+
         var applicant = Applicant.Create(tenantId, "Test", "User", TestData.CreateValidSaId(dob), "0123456789", "test@test.com", dob, "Unemployed", 3000m, 2000m);
         dbContext.AddApplicant(applicant);
 
@@ -137,7 +137,7 @@ public class AssessCreditCommandHandlerTests
         Assert.Equal("Rejected", result.Decision);
         Assert.Equal(LoanApplicationStatus.Rejected, application.Status);
         Assert.Empty(dbContext.Loans);
-        
+
         Assert.Single(dbContext.CreditAssessments);
     }
 }

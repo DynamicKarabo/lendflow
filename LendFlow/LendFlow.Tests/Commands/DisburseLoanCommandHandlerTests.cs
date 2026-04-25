@@ -40,7 +40,7 @@ public class DisburseLoanCommandHandlerTests
 
         var command = new DisburseLoanCommand(Guid.NewGuid(), Guid.NewGuid(), "EFT", "123", "FNB", "key2");
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(command, CancellationToken.None));
-        
+
         Assert.Contains("not found", ex.Message);
     }
 
@@ -58,7 +58,7 @@ public class DisburseLoanCommandHandlerTests
 
         var command = new DisburseLoanCommand(tenantId, loan.Id, "EFT", "123", "FNB", "key3");
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(command, CancellationToken.None));
-        
+
         Assert.Contains("PendingDisbursement", ex.Message);
     }
 
@@ -78,10 +78,10 @@ public class DisburseLoanCommandHandlerTests
 
         Assert.Equal(LoanStatus.Active, loan.Status);
         Assert.NotNull(loan.DisbursementDate);
-        
+
         Assert.Equal(12, dbContext.Repayments.Count);
         Assert.All(dbContext.Repayments, r => Assert.Equal(loan.Id, r.LoanId));
-        
+
         Assert.Single(dbContext.AuditLogs);
         var log = dbContext.AuditLogs.Single();
         Assert.Equal(loan.Id, log.EntityId);
