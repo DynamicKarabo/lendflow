@@ -21,17 +21,17 @@ public class GetLoanQueryHandlerTests
         var tenantId = Guid.NewGuid();
         var applicationId = Guid.NewGuid();
         var applicantId = Guid.NewGuid();
-        
+
         var loan = Loan.Create(
-            tenantId, 
-            applicationId, 
-            applicantId, 
-            5000m, 
-            0.1m, 
-            12, 
+            tenantId,
+            applicationId,
+            applicantId,
+            5000m,
+            0.1m,
+            12,
             new DateOnly(2025, 1, 1)
         );
-        
+
         dbContext.AddLoan(loan);
 
         // Act
@@ -62,7 +62,7 @@ public class GetLoanQueryHandlerTests
         var nonExistentId = Guid.NewGuid();
 
         // Act & Assert
-        await Assert.ThrowsAsync<NotFoundException>(() => 
+        await Assert.ThrowsAsync<NotFoundException>(() =>
             handler.Handle(new GetLoanQuery(nonExistentId), CancellationToken.None));
     }
 }

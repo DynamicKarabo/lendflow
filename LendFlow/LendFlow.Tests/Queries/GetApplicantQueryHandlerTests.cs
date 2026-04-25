@@ -18,10 +18,10 @@ public class GetApplicantQueryHandlerTests
         // Arrange
         var dbContext = new FakeAppDbContext();
         var handler = new GetApplicantQueryHandler(dbContext);
-        
+
         var dob = new DateOnly(1990, 1, 15);
         var saId = TestData.CreateValidSaId(dob);
-        
+
         var applicant = Applicant.Create(
             Guid.NewGuid(),
             "John",
@@ -34,7 +34,7 @@ public class GetApplicantQueryHandlerTests
             50000m,
             20000m
         );
-        
+
         dbContext.AddApplicant(applicant);
 
         // Act
@@ -58,7 +58,7 @@ public class GetApplicantQueryHandlerTests
         var nonExistentId = Guid.NewGuid();
 
         // Act & Assert
-        await Assert.ThrowsAsync<NotFoundException>(() => 
+        await Assert.ThrowsAsync<NotFoundException>(() =>
             handler.Handle(new GetApplicantQuery(nonExistentId), CancellationToken.None));
     }
 }
