@@ -12,7 +12,7 @@ public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
     {
         var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
         optionsBuilder.UseSqlServer(
-            "Server=localhost,1433;Database=LendFlow;User Id=sa;Password=LendFlow@123;TrustServerCertificate=True;");
+            "Server=localhost,1433;Database=LendFlow;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;");
 
         // Stub services for design-time only
         var services = new ServiceCollection();
