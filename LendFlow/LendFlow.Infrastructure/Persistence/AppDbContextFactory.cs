@@ -12,7 +12,7 @@ public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
     {
         var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
         optionsBuilder.UseSqlServer(
-            "Server=localhost,1433;Database=LendFlow;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;");
+            $"Server=localhost,1433;Database=LendFlow;User Id=sa;Password={Environment.GetEnvironmentVariable("SA_PASSWORD") ?? throw new InvalidOperationException("SA_PASSWORD env var not set. Set it in .env file or export SA_PASSWORD=...")};TrustServerCertificate=True;");
 
         // Stub services for design-time only
         var services = new ServiceCollection();

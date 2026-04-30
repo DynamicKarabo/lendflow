@@ -30,7 +30,7 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 
 ENV ASPNETCORE_URLS=http://+:5147
-ENV ConnectionStrings__DefaultConnection="Server=sql,1433;Database=LendFlow;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;"
+ENV ConnectionStrings__DefaultConnection="Server=sql,1433;Database=LendFlow;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;"
 ENV ConnectionStrings__Redis="redis:6379"
 
 EXPOSE 5147
