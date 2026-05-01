@@ -10,7 +10,7 @@ namespace LendFlow.Infrastructure.Services;
 
 public class ServiceBusPublisher : IEventPublisher
 {
-    private readonly ServiceBusSender _sender;
+    private readonly ServiceBusSender? _sender;
     private readonly ILogger<ServiceBusPublisher> _logger;
     private readonly bool _isEnabled;
 
@@ -51,7 +51,7 @@ public class ServiceBusPublisher : IEventPublisher
                 MessageId = Guid.NewGuid().ToString()
             };
 
-            await _sender.SendMessageAsync(message, ct);
+            await _sender!.SendMessageAsync(message, ct);
             _logger.LogDebug("Published event {EventType} to Service Bus", typeof(T).Name);
         }
         catch (Exception ex)
